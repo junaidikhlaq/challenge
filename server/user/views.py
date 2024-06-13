@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.conf import settings
 from django.middleware import csrf
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions as rest_exceptions, response, decorators as rest_decorators, permissions as rest_permissions
 from rest_framework_simplejwt import tokens, views as jwt_views, serializers as jwt_serializers, exceptions as jwt_exceptions
 from user import serializers, models
@@ -15,8 +17,6 @@ prices = {
     settings.UNIVERSE_GROUP: "universe_group",
     settings.UNIVERSE_BUSINESS: "universe_business"
 }
-
-
 def get_user_tokens(user):
     refresh = tokens.RefreshToken.for_user(user)
     return {
@@ -24,6 +24,15 @@ def get_user_tokens(user):
         "access_token": str(refresh.access_token)
     }
 
+@swagger_auto_schema(
+    method='post',
+    request_body=serializers.LoginSerializer,
+    responses={
+        200: openapi.Response('Success', serializers.LoginSerializer),
+        401: 'Unauthorized',
+        400: 'Bad Request',
+    }
+)
 
 @rest_decorators.api_view(["POST"])
 @rest_decorators.permission_classes([])
@@ -64,6 +73,17 @@ def loginView(request):
         "Email or Password is incorrect!")
 
 
+@swagger_auto_schema(
+    method='post',
+    request_body=serializers.RegistrationSerializer,
+    responses={
+        200: openapi.Response('Success', openapi.Schema(
+            type=openapi.TYPE_STRING,
+            description="Registered!"
+        )),
+        400: 'Bad Request',
+    }
+)
 @rest_decorators.api_view(["POST"])
 @rest_decorators.permission_classes([])
 def registerView(request):
@@ -76,6 +96,14 @@ def registerView(request):
         return response.Response("Registered!")
     return rest_exceptions.AuthenticationFailed("Invalid credentials!")
 
+
+@swagger_auto_schema(
+    method='post',
+    responses={
+        200: 'Logged out',
+        400: 'Invalid token',
+    }
+)
 
 @rest_decorators.api_view(['POST'])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
@@ -129,6 +157,13 @@ class CookieTokenRefreshView(jwt_views.TokenRefreshView):
         return super().finalize_response(request, response, *args, **kwargs)
 
 
+@swagger_auto_schema(
+    method='get',
+    responses={
+        200: openapi.Response('Success', serializers.UserSerializer),
+        404: 'Not Found',
+    }
+)
 @rest_decorators.api_view(["GET"])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def user(request):
@@ -141,6 +176,29 @@ def user(request):
     return response.Response(serializer.data)
 
 
+
+@swagger_auto_schema(
+    method='get',
+    responses={
+        200: openapi.Response('Success', openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'subscriptions': openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'id': openapi.Schema(type=openapi.TYPE_STRING),
+                            'start_date': openapi.Schema(type=openapi.TYPE_STRING),
+                            'plan': openapi.Schema(type=openapi.TYPE_STRING)
+                        }
+                    )
+                )
+            }
+        )),
+        404: 'Not Found',
+    }
+)
 @rest_decorators.api_view(["GET"])
 @rest_decorators.permission_classes([rest_permissions.IsAuthenticated])
 def getSubscriptions(request):

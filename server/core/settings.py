@@ -20,13 +20,21 @@ env = environ.Env(
 )
 environ.Env.read_env()
 
-STRIPE_SECRET_KEY=env('STRIPE_SECRET_KEY')
-WORLD_INDIVIDUAL=env('WORLD_INDIVIDUAL')
-WORLD_GROUP=env('WORLD_GROUP')
-WORLD_BUSINESS=env('WORLD_BUSINESS')
-UNIVERSE_INDIVIDUAL=env('UNIVERSE_INDIVIDUAL')
-UNIVERSE_GROUP=env('UNIVERSE_GROUP')
-UNIVERSE_BUSINESS=env('UNIVERSE_BUSINESS')
+# STRIPE_SECRET_KEY=env('STRIPE_SECRET_KEY')
+# WORLD_INDIVIDUAL=env('WORLD_INDIVIDUAL')
+# WORLD_GROUP=env('WORLD_GROUP')
+# WORLD_BUSINESS=env('WORLD_BUSINESS')
+# UNIVERSE_INDIVIDUAL=env('UNIVERSE_INDIVIDUAL')
+# UNIVERSE_GROUP=env('UNIVERSE_GROUP')
+# UNIVERSE_BUSINESS=env('UNIVERSE_BUSINESS')
+
+STRIPE_SECRET_KEY=""
+WORLD_INDIVIDUAL=""
+WORLD_GROUP=""
+WORLD_BUSINESS=""
+UNIVERSE_INDIVIDUAL=""
+UNIVERSE_GROUP=""
+UNIVERSE_BUSINESS=""
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +66,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-
+    'drf_yasg',
+    
     # Apps
     'user',
 ]
@@ -210,6 +219,7 @@ SIMPLE_JWT = {
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # 'rest_framework_simplejwt.authentication.JWTAuthentication', # TODO: For now
         'user.authenticate.CustomAuthentication',
@@ -219,5 +229,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 }
+
+# SWAGGER_SETTINGS = {
+#     'DEFAULT_API_URL': '/api/v1/',  # Replace with your API base URL
+#     'SECURITY_DEFINITIONS': {
+#         'basic': {
+#             'type': 'http',
+#             'scheme': 'basic'
+#         }
+#     },
+# }
 
 AUTH_USER_MODEL = 'user.User'
